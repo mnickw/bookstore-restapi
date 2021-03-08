@@ -41,7 +41,7 @@ namespace bookstore_restapi
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "bookstore_restapi", Version = "v1" });
             });
 
-            string domain = $"https://{Configuration["JWTBearer:Domain"]}/";
+            string domain = $"{Configuration["JWTBearer:Domain"]}";
             services
                 .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
