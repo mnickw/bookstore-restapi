@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using bookstore_restapi.Data;
 using bookstore_restapi.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace bookstore_restapi.Controllers
 {
@@ -44,6 +45,7 @@ namespace bookstore_restapi.Controllers
 
         // PUT: api/Books/5
         [HttpPut("{id}")]
+        [Authorize("change:books")]
         public async Task<IActionResult> PutBook(long id, Book book)
         {
             if (id != book.Id)
@@ -74,6 +76,7 @@ namespace bookstore_restapi.Controllers
 
         // POST: api/Books
         [HttpPost]
+        [Authorize("change:books")]
         public async Task<ActionResult<Book>> PostBook(Book book)
         {
             _context.Books.Add(book);
@@ -84,6 +87,7 @@ namespace bookstore_restapi.Controllers
 
         // DELETE: api/Books/5
         [HttpDelete("{id}")]
+        [Authorize("change:books")]
         public async Task<IActionResult> DeleteBook(long id)
         {
             var book = await _context.Books.FindAsync(id);
