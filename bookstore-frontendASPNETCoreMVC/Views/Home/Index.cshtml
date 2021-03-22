@@ -1,47 +1,8 @@
-﻿@model IEnumerable<CommonProj.BookDTO>
-@{
-    ViewData["Title"] = "Books Page";
+﻿@{
+    ViewData["Title"] = "Bookstore Home Page";
 }
 
 <div class="text-center">
     <h1 class="display-4">Welcome</h1>
     <p>It's a bookstore!</p>
 </div>
-
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @nameof(CommonProj.BookDTO.Id)
-            </th>
-            <th>
-                @nameof(CommonProj.BookDTO.Name)
-            </th>
-            <th>
-                @nameof(CommonProj.BookDTO.Author)
-            </th>
-            <th>
-                @nameof(CommonProj.BookDTO.Price)
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var book in Model)
-        {
-            <tr>
-                <td>
-                    @book.Id
-                </td>
-                <td>
-                    @book.Name
-                </td>
-                <td>
-                    @book.Author
-                </td>
-                <td>
-                    @book.Price
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>

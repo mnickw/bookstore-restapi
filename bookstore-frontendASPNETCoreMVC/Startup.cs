@@ -1,3 +1,4 @@
+using bookstore_frontendASPNETCoreMVC.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
@@ -60,8 +61,8 @@ namespace bookstore_frontendASPNETCoreMVC
                 // Configure the scope
                 options.Scope.Clear();
                 options.Scope.Add("openid");
-                //options.Scope.Add("change:books");
-                //options.Scope.Add("profile");
+                options.Scope.Add("change:books");
+                options.Scope.Add("profile");
 
                 // Set the callback path
                 // Also ensure that you have added the URL as an Allowed Callback URL in your Auth0 dashboard
@@ -74,25 +75,25 @@ namespace bookstore_frontendASPNETCoreMVC
                 options.SaveTokens = true;
 
                 // Set the correct name claim type
-                //options.TokenValidationParameters = new TokenValidationParameters
-                //{
-                //    NameClaimType = "name",
-                //    RoleClaimType = "https://bookstore-nick.md/roles"
-                //};
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    NameClaimType = "Role",
+                    RoleClaimType = "https://bookstore-nick.md/roles"
+                };
 
                 options.Events = new OpenIdConnectEvents
                 {
-                    //OnRedirectToIdentityProvider = context =>
-                    //{
-                    //    // The context's ProtocolMessage can be used to pass along additional query parameters
-                    //    // to Auth0's /authorize endpoint.
-                    //    // 
-                    //    // Set the audience query parameter to the API identifier to ensure the returned Access Tokens can be used
-                    //    // to call protected endpoints on the corresponding API.
-                    //    context.ProtocolMessage.SetParameter("audience", Configuration["Auth0:Audience"]);
+                    OnRedirectToIdentityProvider = context =>
+                    {
+                        // The context's ProtocolMessage can be used to pass along additional query parameters
+                        // to Auth0's /authorize endpoint.
+                        // 
+                        // Set the audience query parameter to the API identifier to ensure the returned Access Tokens can be used
+                        // to call protected endpoints on the corresponding API.
+                        context.ProtocolMessage.SetParameter("audience", Configuration["Auth0:Audience"]);
 
-                    //    return Task.FromResult(0);
-                    //},
+                        return Task.FromResult(0);
+                    },
                     // handle the logout redirection
                     OnRedirectToIdentityProviderForSignOut = (context) =>
                     {
@@ -119,6 +120,8 @@ namespace bookstore_frontendASPNETCoreMVC
             });
 
             services.AddControllersWithViews();
+            services.AddHttpContextAccessor();
+            services.AddScoped<IBookRepository, BookRepositoryFromAPI>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
