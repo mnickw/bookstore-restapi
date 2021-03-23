@@ -25,11 +25,17 @@ namespace bookstore_restapi.Controllers
         }
 
         [HttpGet("{userId}/cart")]
+        [Authorize]
         public async Task<ActionResult<CartDTO>> Cart(string userId)
         {
-            var booksInCart = _context.CartElements.Where(element => element.UserId == userId)
-                .Select(element => new BookInCartDTO { BookId = element.BookId, BookQnty = element.BookQnty });
-            return new CartDTO { UserId = userId, BooksInCart = await booksInCart.ToListAsync() };
+            string userIDfromToken = User.Identity.Name;
+            if (userIDfromToken != null && userId == userIDfromToken)
+            {
+                var booksInCart = _context.CartElements.Where(element => element.UserId == userId)
+                    .Select(element => new BookInCartDTO { BookId = element.BookId, BookQnty = element.BookQnty });
+                return new CartDTO { UserId = userIDfromToken, BooksInCart = await booksInCart.ToListAsync() };
+            }
+            return Forbid();
         }
     }
 }
