@@ -14,13 +14,10 @@ namespace bookstore_restapi.Controllers
     [ApiController]
     public class MembersController : Controller
     {
-        private readonly IAuthorizationService _authorizationService;
         private readonly ApplicationDbContext _context;
 
-        public MembersController(IAuthorizationService authorizationService,
-                                 ApplicationDbContext context)
+        public MembersController(ApplicationDbContext context)
         {
-            _authorizationService = authorizationService;
             _context = context;
         }
 
@@ -34,6 +31,47 @@ namespace bookstore_restapi.Controllers
                 var booksInCart = _context.CartElements.Where(element => element.UserId == userId)
                     .Select(element => new BookInCartDTO { BookId = element.BookId, BookQnty = element.BookQnty });
                 return new CartDTO { UserId = userIDfromToken, BooksInCart = await booksInCart.ToListAsync() };
+            }
+            return Forbid();
+        }
+
+        [HttpPut("{userId}/cart")]
+        [Authorize]
+        public async Task<ActionResult<CartElementDTO>> PostBookInCart(string userId, [FromBody] BookInCartDTO bookInCart)
+        {
+            string userIDfromToken = User.Identity.Name;
+            if (userIDfromToken != null && userId == userIDfromToken)
+            {
+                var element = await _context.CartElements.Where(e => e.UserId == userId && e.BookId == bookInCart.BookId)
+                    .FirstOrDefaultAsync();
+                if (element == null)
+                {
+                    element = new CartElement { UserId = userIDfromToken, BookId = bookInCart.BookId, BookQnty = bookInCart.BookQnty };
+                    _context.CartElements.Add(element);
+                    await _context.SaveChangesAsync();
+                }
+                else
+                {
+                    element.BookQnty += bookInCart.BookQnty;
+                    _context.Entry(element).State = EntityState.Modified;
+                    try
+                    {
+                        await _context.SaveChangesAsync();
+                    }
+                    catch (DbUpdateConcurrencyException)
+                    {
+                        if (!(_context.CartElements.Any(e => e.UserId == userId && e.BookId == bookInCart.BookId)))
+                        {
+                            return NotFound();
+                        }
+                        else
+                        {
+                            throw;
+                        }
+                    }
+                }
+                var elementDTO = new CartElementDTO { UserId = element.UserId, BookId = element.BookId, BookQnty = element.BookQnty };
+                return CreatedAtAction(nameof(Cart), new { userId = userId }, elementDTO);
             }
             return Forbid();
         }
