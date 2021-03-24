@@ -23,7 +23,7 @@ namespace bookstore_restapi.Controllers
 
         [HttpGet("{userId}/cart")]
         [Authorize]
-        public async Task<ActionResult<CartDTO>> Cart(string userId)
+        public async Task<ActionResult<CartDTO>> GetCart(string userId)
         {
             string userIDfromToken = User.Identity.Name;
             if (userIDfromToken != null && userId == userIDfromToken)
@@ -71,7 +71,7 @@ namespace bookstore_restapi.Controllers
                     }
                 }
                 var elementDTO = new CartElementDTO { UserId = element.UserId, BookId = element.BookId, BookQnty = element.BookQnty };
-                return CreatedAtAction(nameof(Cart), new { userId = userId }, elementDTO);
+                return CreatedAtAction(nameof(GetCart), new { userId = userId }, elementDTO);
             }
             return Forbid();
         }
