@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using bookstore_restapi.Data;
 using bookstore_restapi.Models;
 using Microsoft.AspNetCore.Authorization;
+using bookstore_restapi.Services;
 
 namespace bookstore_restapi.Controllers
 {
@@ -15,67 +16,52 @@ namespace bookstore_restapi.Controllers
     [ApiController]
     public class BooksController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IBookRepository _bookRepository;
 
-        public BooksController(ApplicationDbContext context)
+        public BooksController(IBookRepository bookRepository)
         {
-            _context = context;
+            _bookRepository = bookRepository;
         }
 
         // GET: api/Books
         [HttpGet]
         public async Task<ActionResult<IEnumerable<BookDTO>>> GetBooks()
         {
-            return await _context.Books.Select(b =>
-                new BookDTO { Id = b.Id, Author = b.Author,
-                    Name = b.Name, Price = b.Price }).ToListAsync();
+            var books = await _bookRepository.GetBooks();
+            return Ok(books);
         }
 
         // GET: api/Books/5
         [HttpGet("{id}")]
         public async Task<ActionResult<BookDTO>> GetBook(long id)
         {
-            var book = await _context.Books.FindAsync(id);
+            var book = await _bookRepository.GetBookById(id);
 
             if (book == null)
             {
                 return NotFound();
             }
 
-            return new BookDTO { Id = book.Id, Author = book.Author,
-                Name = book.Name, Price = book.Price };
+            return book;
         }
 
         // PUT: api/Books/5
         [HttpPut("{id}")]
         [Authorize("change:books")]
-        public async Task<IActionResult> PutBook(long id, BookDTO bookDTO)
+        public async Task<IActionResult> PutBook(long id, BookForPostDTO bookForPostDTO)
         {
-            if (id != bookDTO.Id)
+            var bookDTO = new BookDTO
             {
-                return BadRequest();
-            }
-
-            var book = new Book { Id = bookDTO.Id, Author = bookDTO.Author,
-                Name = bookDTO.Name, Price = bookDTO.Price };
-            _context.Entry(book).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!BookExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
+                Id = id,
+                Author = bookForPostDTO.Author,
+                Name = bookForPostDTO.Name,
+                Price = bookForPostDTO.Price
+            };
+            var putResult = await _bookRepository.ChangeBook(bookDTO);
+            if (putResult == ChangeItemResult.NoItemInDB)
+                return NotFound();
+            if (putResult == ChangeItemResult.ConcurrencyException_TryAgain)
+                return StatusCode(503, "Concurrency error, try again");
             return NoContent();
         }
 
@@ -84,22 +70,8 @@ namespace bookstore_restapi.Controllers
         [Authorize("change:books")]
         public async Task<ActionResult<BookDTO>> PostBook(BookForPostDTO bookForPostDTO)
         {
-            var book = new Book
-            {
-                Author = bookForPostDTO.Author,
-                Name = bookForPostDTO.Name,
-                Price = bookForPostDTO.Price
-            };
-            _context.Books.Add(book);
-            await _context.SaveChangesAsync();
-            var bookDTO = new BookDTO
-            {
-                Id = book.Id,
-                Author = bookForPostDTO.Author,
-                Name = bookForPostDTO.Name,
-                Price = bookForPostDTO.Price
-            };
-            return CreatedAtAction(nameof(GetBook), new { id = book.Id }, bookDTO);
+            var bookDTO = await _bookRepository.AddBook(bookForPostDTO);
+            return CreatedAtAction(nameof(GetBook), new { id = bookDTO.Id }, bookDTO);
         }
 
         // DELETE: api/Books/5
@@ -107,21 +79,13 @@ namespace bookstore_restapi.Controllers
         [Authorize("change:books")]
         public async Task<IActionResult> DeleteBook(long id)
         {
-            var book = await _context.Books.FindAsync(id);
-            if (book == null)
-            {
+            var result = await _bookRepository.DeleteBookById(id);
+
+            if (result == ChangeItemResult.NoItemInDB)
                 return NotFound();
-            }
-
-            _context.Books.Remove(book);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool BookExists(long id)
-        {
-            return _context.Books.Any(e => e.Id == id);
+            if (result == ChangeItemResult.Ok)
+                return NoContent();
+            throw new Exception();
         }
     }
 }
