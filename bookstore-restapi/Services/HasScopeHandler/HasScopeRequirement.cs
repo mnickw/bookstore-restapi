@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace bookstore_restapi
+namespace bookstore_restapi.Services.HasScopeHandler
 {
     public class HasScopeRequirement : IAuthorizationRequirement
     {

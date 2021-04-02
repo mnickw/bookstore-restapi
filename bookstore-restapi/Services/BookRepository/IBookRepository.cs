@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using bookstore_restapi.Models;
 
-namespace bookstore_restapi.Services
+namespace bookstore_restapi.Services.BookRepository
 {
     public interface IBookRepository
     {

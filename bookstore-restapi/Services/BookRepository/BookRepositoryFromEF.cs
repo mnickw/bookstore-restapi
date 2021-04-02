@@ -16,7 +16,7 @@ using Microsoft.AspNetCore.Authorization;
 using bookstore_restapi.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace bookstore_restapi.Services
+namespace bookstore_restapi.Services.BookRepository
 {
     public class BookRepositoryFromEF : IBookRepository
     {

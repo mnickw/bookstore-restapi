@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using bookstore_restapi.Data;
 using bookstore_restapi.Models;
 using Microsoft.AspNetCore.Authorization;
-using bookstore_restapi.Services;
+using bookstore_restapi.Services.BookRepository;
 
 namespace bookstore_restapi.Controllers
 {
