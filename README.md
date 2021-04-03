@@ -14,21 +14,25 @@
 |---------------------------|-----------------------|----------------|
 | get                       | get all books         |                |
 | post* {...}               | add one book to books | /change:books/ |
+
 /books/{bookId}
 | Api verb (* - authorized) | Description | Permissions    |
 |---------------------------|-------------|----------------|
 | get                       | get book    |                |
 | put*                      | change book | /change:books/ |
 | delete*                   | delete book | /change:books/ |
+
 /members/{userID}/cart
 | Api verb (* - authorized) | Description          | Permissions                        |
 |---------------------------|----------------------|------------------------------------|
 | get*                      | get user's own cart  | (userID in url == userID in Token) |
 | put* {bookId, qnty}       | add one book to cart | (userID in url == userID in Token) |
+
 /orders
 | Api verb (* - authorized) | Description                                | Permissions |
 |---------------------------|--------------------------------------------|-------------|
 | post* пустой              | add order from cart of userID (from Token) | authorized  |
+
 /orders/{orderID}
 | Api verb (* - authorized) | Description   | Permissions                          |
 |---------------------------|---------------|--------------------------------------|
