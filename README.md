@@ -45,31 +45,51 @@ tl;dr: теперь пользователь может зайти на сайт
 ## Что нужно сейчас реализовывать
 
 добавить repository pattern там, где нужно (будет полезен для моков)
+
 подумать еще раз о dto моделях
+
 end-to-end тесты для апи
+
 юнит тесты
+
 исправление ошибок, связанных с отправкой неправильных данных
+
 swagger
+
 логирование
+
 фильтрация книг ?authors="name name2"
+
 /members/{userID}/cart/{bookID} - get put delete
 
 ## Что нужно реализовывать в принципе
 
 логику с refresh токеном
+
 фронтенд
+
 просмотр своего профиля
+
 более подробное описание всего решения
 
 ## Что хочется в перспективе
 
 изменение своего профиля
+
 admin api (as 2nd api?)
+
 /books post* {[...]} - add several books /change:books/
+
 pagination: books (заменить обычный get), user's orders
+
 /orders?userID get с фильтрацией все по своему userID /(userID in url == userID in Token)/
+
 sign up btn
+
 limit for cart
+
 hal и links в апи
+
 shipment, payment, дискаунты/скидки
+
 blazor front как 3rd party app
